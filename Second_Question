@@ -1,0 +1,31 @@
+ --druhá výzkumná otázka
+
+with extreme_values as (
+    select 
+        min(price_year) as min_year,
+        max(price_year) as max_year,
+        min(price_quarter) as min_quarter,
+        max(price_quarter) as max_quarter
+    from t_karolina_dvorakovamachova_project_SQL_primary_final
+    where value_type_code = 5958
+    and unit_code = 200
+    and price is not null
+    and product_code in (114201, 111301)
+   )
+select
+	price_year as price_year,
+	price_quarter as price_quarter,
+	avg(price) as avg_price,
+	avg(value) as avg_payroll,
+	avg(value)/avg(price) as pieces,
+	product_code as pc
+from t_karolina_dvorakovamachova_project_SQL_primary_final as tkdpspf
+join extreme_values ev 
+    on (tkdpspf.price_year = ev.max_year and tkdpspf.price_quarter = ev.max_quarter)
+    or (tkdpspf.price_year = ev.min_year and tkdpspf.price_quarter = ev.min_quarter)
+where value_type_code = 5958
+and unit_code = 200
+and price is not null
+and product_code in (114201, 111301)
+group by price_year, price_quarter, product_code;
+

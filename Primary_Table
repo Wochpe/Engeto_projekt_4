@@ -5,8 +5,8 @@ create or replace view v_karolina_machova_dvorakova_price as
 select
 	avg(value) as price,
 	category_code as product_code,
-	date_part('YEAR', date_from) as price_year,
-	date_part('QUARTER', date_from) as price_quarter
+	date_part('year', date_from) as price_year,
+	date_part('quarter', date_from) as price_quarter
 from czechia_price cp 
 where region_code is null
 group by price_year, price_quarter, category_code;

@@ -1,0 +1,3 @@
+select *
+from t_karolina_dvorakovamachova_project_SQL_secondary_final
+where delta_hdp_pc >= 1000;

@@ -1,0 +1,18 @@
+-- čtvrtá výzkumná otázka
+
+with rise_less_10 as(
+	select
+		avg(price) as avg_price,
+		price_year as price_year,
+		lag(avg(price),1 )over (order by price_year)  as lag_price,
+		(avg(price)/(lag(avg(price),1) over (order by price_year)) -1)*100 as perc_dif
+	from "t_karolina_dvorakovamachova_project_SQL_primary_final" as tkdpspf
+	group by price_year
+	order by price_year  asc
+	)
+select *
+from rise_less_10
+where perc_dif > 10
+order by price_year asc;
+
+-- neexistuje

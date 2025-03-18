@@ -1,0 +1,31 @@
+--tvorba dvou view z tabulek economies a primární tabulky t_karolina_dvorakovamachova_project_SQL_primary_final jako příprava na sloučení
+
+create or replace view v_karolina_machova_dvorakova_country as
+select
+	country as country,
+	gdp/population as hdp_per_cap,
+	year as year_country
+from economies ec 
+where country = 'Czech Republic';
+
+create or replace view v_karolina_machova_dvorakova_payroll_year as
+select price_year as price_year,
+	avg(price) as price,
+	avg(value) as payroll
+from t_karolina_dvorakovamachova_project_SQL_primary_final prim
+where value_type_code = 5958
+	and unit_code = 200
+	and price_year is not null
+group by price_year;
+
+--drop table t_karolina_dvorakovamachova_project_SQL_secondary_final;
+create table t_karolina_dvorakovamachova_project_SQL_secondary_final as
+select *,
+	hdp_per_cap - (lag(hdp_per_cap, 1) over (order by price_year)) as delta_hdp_pc,
+	((lead(payroll, 1) over (order by price_year)) - payroll) as delta_payroll_1, --zvýšení na další rok
+	((lead(price, 1) over (order by price_year)) - price) as delta_price_1,
+	payroll - (lag(payroll, 1) over (order by price_year))  as delta_payroll_0, --zvýšení na ten rok
+	price - (lag(price, 1) over (order by price_year))  as delta_price_0 
+from v_karolina_machova_dvorakova_country
+right join v_karolina_machova_dvorakova_payroll_year on (v_karolina_machova_dvorakova_payroll_year.price_year =  v_karolina_machova_dvorakova_country.year_country)
+order by price_year asc;

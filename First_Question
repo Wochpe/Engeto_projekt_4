@@ -1,0 +1,21 @@
+--první výzkumná otázka
+
+with rostouci_mzdy as(
+	select
+		payroll_year as payroll_year,
+		industry_branch_code as ibc,
+    	round(avg(value),2) as payroll,
+    	lag (round(avg(value),2)) over (partition by industry_branch_code order by avg(value)) as payroll_ly
+	from t_karolina_dvorakovamachova_project_SQL_primary_final as tkdpspf 
+		where value_type_code = 5958
+		and unit_code = 200
+		and industry_branch_code is not null
+	group by industry_branch_code, payroll_year
+	order by industry_branch_code, payroll_year
+)
+select 
+	distinct ibc
+from rostouci_mzdy
+	where payroll > payroll_ly
+group by ibc
+ having count(payroll) = 21; --první rok porovnávat nemusíme
